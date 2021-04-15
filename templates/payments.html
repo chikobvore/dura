@@ -1,0 +1,99 @@
+{% extends 'index.html' %} {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-md-4">
+                        <button class="btn btn-success" data-toggle="modal" data-target="#destribute">Export to EXCEL</button>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4">
+                        <form method="POST" action="/payments/search">
+                            <div class="form-group">
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="search" placeholder="Search account by account no">
+                                    <span class="input-group-append">
+                  <button type="submit" class="btn btn-info btn-flat"><i class="fa fa-search"></i>Search</button>
+                </span>
+                                </div>
+                        </form>
+                        </div>
+                    </div>
+                    {{message }}
+                    <table id="accounts " class="table table-striped ">
+                        <thead>
+                            <tr>
+                                <th> Reference no</th>
+                                <th> Paynow Reference</th>
+                                <th> Account no</th>
+                                <th> Payee number</th>
+                                <th> Email </th>
+                                <th> Amount paid </th>
+                                <th> Status </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{payment.reference_no}}</td>
+                                <td>{{payment.paynow_ref}}</td>
+                                <td>{{payment.account}}</td>
+                                <td>{{payment.pay_number }}</td>
+                                <td>{{payment.email}}</td>
+                                <td>{{payment.amount}}</td>
+                                <td>
+                                    <label class="badge badge-gradient-success">{{payment.Status}}</label>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal  fade" id="destribute" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="message">Generate Report</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="/payments/export">
+                        <section id="payment" style="display: contents;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Start Date</label>
+                                        <input type="date" name="sd" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">End Date</label>
+                                        <input type="date" name="ed" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success" type="submit" id="submit">Generate & Export</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

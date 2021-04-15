@@ -1,0 +1,113 @@
+{% extends 'index.html' %} {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-body ">
+                <button class="btn btn-success" data-toggle="modal" data-target="#addproduct">Add Product</button>
+
+                <table id="accounts " class="table table-striped ">
+                    <thead>
+                        <tr>
+                            <th> Product</th>
+                            <th> Price</th>
+                            <th> Description </th>
+                            <th> Best Before </th>
+                            <th> Manufactured Date </th>
+                            <th> Ratings </th>
+                            <th> Frequency </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in groceries %}
+                        <tr>
+                            <td>{{product.product}}</td>
+                            <td>{{product.price }}</td>
+                            <td>{{product.description}}</td>
+                            <td>{{product.best_before}}</td>
+                            <td>{{product.md}}</td>
+                            <td>{{product.ratings}}</td>
+                            <td>{{product.frequency}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  Modal-->
+<!-- this modal is generating reports -->
+<div class="modal  fade" id="addproduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="message">New Product</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/households">
+                    <section id="payment" style="display: contents;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Product</label>
+                                    <input type="text" class="form-control" name="product" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Price</label>
+                                    <input type="number" class="form-control" name="price" step='.01' required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Description</label>
+                                    <textarea class="form-control" name="description" required></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Best Before</label>
+                                    <input type="date" name="bb" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Manufactured date</label>
+                                    <input type="date" name="md" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Picture</label>
+                                    <input type="file" name="picture" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Product Code</label>
+                                    <input type="number" name="product_code" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+            </div>
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="submit" id="submit">Save Details</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
