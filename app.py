@@ -25,7 +25,7 @@ def index():
         message_id = payload['messages'][0]['id']
         response = payload['messages'][0]['body']
         
-        if sender == '263714502462':
+        if sender == '263787060171':
             return '', 200
 
         existance = dbh.db['Senders'].count_documents({"Sender": sender})
@@ -50,9 +50,9 @@ def index():
             message = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting Dura Online services,I'm Marvellous, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263784451537 \n\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
             payload = {
                 "phone": sender,
-                "filename": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg',
+                "filename": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg',
                 "caption": message,
-                "body": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg'
+                "body": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg'
             }
             
             response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
