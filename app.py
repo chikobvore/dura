@@ -28,7 +28,13 @@ def index():
         if sender == '263714502462':
             return '', 200
 
-        existance = dbh.db['Senders'].count_documents({"Sender": sender}) 
+        existance = dbh.db['Senders'].count_documents({"Sender": sender})
+
+        if response == 'EXIT' or response == 'exit' or response == 'Exit':
+            sh.session_status(sender,'0','0') 
+            message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+            api.reply_message(sender,message)
+            return '', 200
 
         #check if session exist
         if existance < 1:
@@ -49,7 +55,7 @@ def index():
                 "body": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg'
             }
             
-            response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+            response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
             print('....replied: '+ sender + '...........')
             return str(response.status_code)
 
@@ -67,7 +73,6 @@ def index():
             minutes = total_seconds/60
             if minutes > 15:
                 sh.session_status(sender,'0','0')
-                dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
                 message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
                 api.reply_message(sender,message)
                 return '', 200
@@ -86,7 +91,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -101,7 +106,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "3":
@@ -115,7 +120,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -130,7 +135,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -145,7 +150,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance255056/sendFile?token=3x4b68jyfkipt9q5", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance257796/sendFile?token=01pa5s42i13nmqhr", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "0":
@@ -163,7 +168,8 @@ def index():
                     return '', 200
                 else:
                     #invalid response from user
-                    message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+                    sh.session_status(sender,'0','0')  
+                    message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Cancel"
                     api.reply_message(sender,message)
                     return '', 200
 
