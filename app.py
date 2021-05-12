@@ -55,7 +55,7 @@ def index():
                 "body": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg'
             }
             
-            response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+            response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
             print('....replied: '+ sender + '...........')
             return str(response.status_code)
 
@@ -91,7 +91,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -106,7 +106,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "3":
@@ -120,7 +120,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -135,7 +135,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -150,7 +150,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token= du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "0":
