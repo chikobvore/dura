@@ -177,7 +177,7 @@ def index():
 
                 if state['Status'] == '0':
 
-                    product_existance = dbh.db['products'].count_documents({"product": response.lower()})
+                    product_existance = dbh.db['products'].count_documents({"product": response})
 
                     if product_existance > 0:
 
@@ -203,6 +203,14 @@ def index():
                         message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
                         api.reply_message(sender,message)
                         return '', 200
+                    if response == 'Proceed' or response == 'proceed' or response == 'PROCEED':
+
+                        sh.session_status(sender,session_type='PAYMENT',status='0')
+                        
+                        message =  "*Make Payment*\nPlease select your payment method👇 \n *1*.Ecocash. \n *2*.Telecash\n *3*.One Money\n\n*0*.Cancel"
+                        api.reply_message(sender,message)
+                        return '', 200
+
                     else:                    
                         product_existance = dbh.db['products'].count_documents({"product_code": response}) 
 
@@ -213,7 +221,7 @@ def index():
                                 "sender": sender,
                                 "product": product['product'],
                                 "product_code": product['product_code'],
-                                "price": product['price'] 
+                              "price": product['price'] 
                             }
                             dbh.db['shopping_cart'].insert_one(record)
                             sh.session_status(sender,'0','0') 
@@ -227,6 +235,184 @@ def index():
                             message =  "Sorry product code not found"
                             api.reply_message(sender,message)
                             return '', 200
+
+            elif state['session_type'] == "PAYMENT":
+
+                if state['Status'] == '0':
+
+                    state = dbh.db['Senders'].find_one({"Sender": sender})
+                    sh.session_status(sender,state['session_type'],status='1')
+
+                    if response == '1':
+                        payment_method = 'ecocash'
+                    elif response == '2':
+                        payment_method = 'telecash'
+                    elif response == '3':
+                        payment_method = 'onemoney'
+                    else:
+                        message = "*invalid input*\nplease select a valid payment method\n*1*.Ecocash\n*2*.Telecash\n*3*.One Money\n*0*.Cancel transaction"
+                        api.reply_message(sender,message)
+                        return '', 200
+
+                    
+                    record = {
+                            "Sender": sender,
+                            "reference_no": random.randint(10000,99999),
+                            "pay_number": '',
+                            "email": "",
+                            "amount": "",
+                            "Purpose": "",
+                            "Payment_method": payment_method,
+                            "Date_paid": datetime.datetime.now()
+                            }
+                    dbh.db['pending_payments'].insert_one(record)
+
+                    message =  "*Make Payment*\nPlease provide your email address"
+                    api.reply_message(sender,message)
+                    return '', 200
+
+                elif state['Status'] == '1':
+                    if main.validateemail(email=response):
+                        
+                        state = dbh.db['Senders'].find_one({"Sender": sender})
+                        sh.session_status(sender,state['session_type'],status='2')
+                        details = dbh.db['pending_payments'].find_one({"Sender": sender})
+                        dbh.db['pending_payments'].update({"Sender": sender},
+                        {
+                                "Sender": sender,
+                                "reference_no": details['reference_no'],
+                                "pay_number": details['pay_number'],
+                                "email": response,
+                                "amount": "",
+                                "Purpose": "",
+                                "Payment_method": details['Payment_method'],
+                                "Date_paid": datetime.datetime.now()
+                            })
+
+                        message =  "*Make Payment*\nPlease enter amount"
+                        api.reply_message(sender,message)
+                        return '', 200
+
+                    else:
+                        message =  "Please enter a valid email address"
+                        api.reply_message(sender,message)
+                        return '', 200
+
+                elif state['Status'] == '2':
+                    
+                    state = dbh.db['Senders'].find_one({"Sender": sender})
+                    sh.session_status(sender,session_type=state['session_type'],status='3')
+
+                    details = dbh.db['pending_payments'].find_one({"Sender": sender})
+                    dbh.db['pending_payments'].update({"Sender": sender},
+                    {
+                            "Sender": sender,
+                            "reference_no": details['reference_no'],
+                            "pay_number": details['pay_number'],
+                            "email": details['email'],
+                            "amount": response,
+                            "Purpose": "",
+                            "Payment_method": details['Payment_method'],
+                            "Date_paid": datetime.datetime.now()
+                        })
+            
+                    
+                    products = []
+                    message =  "*Confirm Payment*\n\n*Shopping Cart\n*" 
+                    i = 1
+
+                    for product in dbh.db['shopping_cart'].find({"sender": sender}):
+                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        i = i + 1
+                    
+                    
+                    details = dbh.db['pending_payments'].find_one({"Sender": sender})
+
+                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  details['amount']+  "\n\nPress 1 to continue or 0 to cancel"
+                    message = message + message2
+                    api.reply_message(sender,message)
+                    return '', 200
+
+                elif state['Status'] == '3':
+                    if response == '0':
+
+                        dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                        message = "Transaction cancelled 😔"
+                        api.reply_message(sender,message)
+                        return main.menu(sender)
+
+                    details = dbh.db['pending_payments'].find_one({"Sender": sender})
+                    #paynow = Paynow(9415,'3d7f4aed-ab06-42f5-b155-0e12e41fc714','https://tauraikatsekera.herokuapp.com/chatbot/payments', 'https://tauraikatsekera.herokuapp.com/chatbot/payments')
+                    paynow = Paynow(10724,'31008a64-6945-43d6-aed2-000961c04d5a','https://tauraikatsekera.herokuapp.com/chatbot/payments', 'https://tauraikatsekera.herokuapp.com/chatbot/payments')
+                    payment = paynow.create_payment(details['reference_no'], details['email'])
+    
+                    payment.add(details['Purpose'], details['amount'])
+                    response = paynow.send_mobile(payment, details['pay_number'], details['Payment_method'])
+
+
+                    if(response.success):
+                        poll_url = response.poll_url
+                        print("Poll Url: ", poll_url)
+                        # Get the poll url (used to check the status of a transaction). You might want to save this in your DB
+                        r=requests.get(poll_url)
+                        actualResponse = r.text
+                        
+                        tr = actualResponse.split("&")
+                    
+                        diction = {}
+                        
+                        for string in tr:
+                            values = string.split("=")
+                            print(values)
+                            diction[values[0]] = values[1]
+
+                        #get date
+                        mytime = str(pd.to_datetime('now'))
+                        mydate = mytime.split(' ')
+                        mydate[0]
+
+
+        
+                        record = {
+                            "Sender": sender,
+                            "reference_no": details['reference_no'],
+                            "paynow_ref": diction['paynowreference'],
+                            "pay_number": details['pay_number'],
+                            "email": details['email'],
+                            "amount": details['amount'],
+                            "Purpose": details['Purpose'],
+                            "Service_code": details['Service code'],
+                            "Status": "PAID",
+                            "Date_paid": mydate[0]
+                            }
+                        dbh.db['payments'].insert_one(record)
+                        dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+
+                        message = "*Payment Confirmation*: Success\n*Reference number*: "+diction['paynowreference']+ "\n\n*Please note that the money will reflect in your account after next end-of-day settlement.*\n\nTo view the transaction online please follow this link\n"+poll_url
+                        api.reply_message(sender,message)
+                        return main.feedback(sender)
+
+                    else:
+                        details = dbh.db['pending_payments'].find_one({"Sender": sender})
+                        record = {
+                            "Sender": sender,
+                            "account": details['account'],
+                            "reference_no": details['reference_no'],
+                            "paynow_ref": diction['paynowreference'],
+                            "pay_number": details['pay_number'],
+                            "email": details['email'],
+                            "amount": details['amount'],
+                            "Purpose": details['Purpose'],
+                            "Status": "FAILED",
+                            "Date_paid": mydate[0]
+                            }
+                        dbh.db['payments'].insert_one(record)
+                        dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                        message = "Transaction Failed"
+                        api.reply_message(sender,message)
+                        return main.feedback(sender)
+                
+
 
 @app.route('/groceries',methods = ['GET','POST']) 
 def groceries():
