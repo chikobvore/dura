@@ -293,8 +293,7 @@ def index():
                     message =  "*Make Payment*\nPlease provide your email address"
                     api.reply_message(sender,message)
                     return '', 200
-                #
-
+                
                 elif state['Status'] == '1':
                     if main.validateemail(email=response):
                         
