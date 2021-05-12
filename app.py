@@ -241,7 +241,7 @@ def index():
                 if state['Status'] == '0':
 
                     state = dbh.db['Senders'].find_one({"Sender": sender})
-                    sh.session_status(sender,state['session_type'],status='1')
+                    sh.session_status(sender,state['session_type'],status='1A')
 
                     if response == '1':
                         payment_method = 'ecocash'
@@ -267,9 +267,33 @@ def index():
                             }
                     dbh.db['pending_payments'].insert_one(record)
 
+                    message =  "*Make Payment*\nPlease provide your phone number for payment"
+                    api.reply_message(sender,message)
+                    return '', 200
+
+                if state['Status'] == '1A':
+
+                    state = dbh.db['Senders'].find_one({"Sender": sender})
+                    sh.session_status(sender,state['session_type'],status='1')
+                    details = dbh.db['pending_payments'].find_one({"Sender": sender})
+
+                    dbh.db['pending_payments'].update({"Sender": sender},
+                        {
+                                "Sender": sender,
+                                "account": "",
+                                "reference_no": details['reference_no'],
+                                "pay_number": response,
+                                "email": '',
+                                "amount": "",
+                                "Purpose": "",
+                                "Payment_method": details['Payment_method'],
+                                "Date_paid": datetime.datetime.now()
+                            })
+
                     message =  "*Make Payment*\nPlease provide your email address"
                     api.reply_message(sender,message)
                     return '', 200
+                #
 
                 elif state['Status'] == '1':
                     if main.validateemail(email=response):
