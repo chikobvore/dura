@@ -2,7 +2,7 @@ from datetime import date
 import pymongo
 from flask import Flask, redirect, render_template, request, session, url_for
 import datetime,requests
-import sh,api
+import sh,api,main
 import sys,os,random
 from paynow import Paynow
 
