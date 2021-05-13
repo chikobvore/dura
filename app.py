@@ -31,6 +31,9 @@ def index():
         existance = dbh.db['Senders'].count_documents({"Sender": sender})
 
         if response == 'EXIT' or response == 'exit' or response == 'Exit':
+
+            dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+            dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
             sh.session_status(sender,'0','0') 
             message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
             api.reply_message(sender,message)
@@ -73,6 +76,8 @@ def index():
             minutes = total_seconds/60
             if minutes > 15:
                 sh.session_status(sender,'0','0')
+                dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
                 message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
                 api.reply_message(sender,message)
                 return '', 200
@@ -312,7 +317,7 @@ def index():
                                 "Date_paid": datetime.datetime.now()
                             })
 
-                        message =  "*Make Payment*\nPlease enter amount"
+                        message =  "*Personal Details*\nPlease enter provide your name and address(name,address)"
                         api.reply_message(sender,message)
                         return '', 200
 
@@ -326,6 +331,19 @@ def index():
                     state = dbh.db['Senders'].find_one({"Sender": sender})
                     sh.session_status(sender,session_type=state['session_type'],status='3')
 
+            
+                    
+                    products = []
+                    message =  "*Confirm Payment*\n\n*Shopping Cart\n*" 
+                    i = 1
+                    price = 0
+
+                    for product in dbh.db['shopping_cart'].find({"sender": sender}):
+                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        i = i + 1
+                        price = price + product['price']
+                    
+                    
                     details = dbh.db['pending_payments'].find_one({"Sender": sender})
                     dbh.db['pending_payments'].update({"Sender": sender},
                     {
@@ -333,25 +351,13 @@ def index():
                             "reference_no": details['reference_no'],
                             "pay_number": details['pay_number'],
                             "email": details['email'],
-                            "amount": response,
+                            "amount": price,
                             "Purpose": "",
                             "Payment_method": details['Payment_method'],
                             "Date_paid": datetime.datetime.now()
                         })
-            
-                    
-                    products = []
-                    message =  "*Confirm Payment*\n\n*Shopping Cart\n*" 
-                    i = 1
 
-                    for product in dbh.db['shopping_cart'].find({"sender": sender}):
-                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
-                        i = i + 1
-                    
-                    
-                    details = dbh.db['pending_payments'].find_one({"Sender": sender})
-
-                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  details['amount']+  "\n\nPress 1 to continue or 0 to cancel"
+                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  price +  "\n\nPress 1 to continue or 0 to cancel"
                     message = message + message2
                     api.reply_message(sender,message)
                     return '', 200
@@ -360,6 +366,8 @@ def index():
                     if response == '0':
 
                         dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                        dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
+                        dbh.db[''].insert_one(record)
                         message = "Transaction cancelled 😔"
                         api.reply_message(sender,message)
                         return main.menu(sender)
@@ -410,6 +418,7 @@ def index():
                             }
                         dbh.db['payments'].insert_one(record)
                         dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                        dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
 
                         message = "*Payment Confirmation*: Success\n*Reference number*: "+diction['paynowreference']+ "\n\n*Please note that the money will reflect in your account after next end-of-day settlement.*\n\nTo view the transaction online please follow this link\n"+poll_url
                         api.reply_message(sender,message)
