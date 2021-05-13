@@ -368,7 +368,6 @@ def index():
 
                         dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
                         dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
-                        dbh.db[''].insert_one(record)
                         message = "Transaction cancelled 😔"
                         api.reply_message(sender,message)
                         return main.menu(sender)
@@ -399,7 +398,7 @@ def index():
                             diction[values[0]] = values[1]
 
                         #get date
-                        mytime = str(pd.to_datetime('now'))
+                        mytime = str(pd.to_datetime('now'))``
                         mydate = mytime.split(' ')
                         mydate[0]
 
