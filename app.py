@@ -398,7 +398,7 @@ def index():
                             diction[values[0]] = values[1]
 
                         #get date
-                        mytime = str(pd.to_datetime('now'))``
+                        mytime = str(pd.to_datetime('now'))
                         mydate = mytime.split(' ')
                         mydate[0]
 
