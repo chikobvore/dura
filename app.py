@@ -317,7 +317,7 @@ def index():
                                 "Date_paid": datetime.datetime.now()
                             })
 
-                        message =  "*Personal Details*\nPlease enter provide your name and address(name,address)"
+                        message =  "*Personal Details*\nPlease enter amount"
                         api.reply_message(sender,message)
                         return '', 200
 
@@ -341,7 +341,7 @@ def index():
                     for product in dbh.db['shopping_cart'].find({"sender": sender}):
                         message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
                         i = i + 1
-                        price = price + float(product['price'])
+        
                     
                     
                     details = dbh.db['pending_payments'].find_one({"Sender": sender})
@@ -351,13 +351,13 @@ def index():
                             "reference_no": details['reference_no'],
                             "pay_number": details['pay_number'],
                             "email": details['email'],
-                            "amount": price,
+                            "amount": response,
                             "Purpose": "",
                             "Payment_method": details['Payment_method'],
                             "Date_paid": datetime.datetime.now()
                         })
 
-                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  price +  "\n\nPress 1 to continue or 0 to cancel"
+                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  response +  "\n\nPress 1 to continue or 0 to cancel"
                     message = message + message2
                     api.reply_message(sender,message)
                     return '', 200
