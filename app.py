@@ -317,7 +317,7 @@ def index():
                                 "Date_paid": datetime.datetime.now()
                             })
 
-                        message =  "*Personal Details*\nPlease enter amount"
+                        message =  "*Payment Details*\nPlease enter amount"
                         api.reply_message(sender,message)
                         return '', 200
 
