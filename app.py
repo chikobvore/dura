@@ -341,7 +341,7 @@ def index():
                     for product in dbh.db['shopping_cart'].find({"sender": sender}):
                         message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
                         i = i + 1
-                        price = price + product['price']
+                        price = price + float(product['price'])
                     
                     
                     details = dbh.db['pending_payments'].find_one({"Sender": sender})
