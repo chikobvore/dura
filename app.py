@@ -26,7 +26,7 @@ def index():
         message_id = payload['messages'][0]['id']
         response = payload['messages'][0]['body']
         
-        if sender == '263714502462':
+        if sender == '263787060171':
             return '', 200
 
         existance = dbh.db['Senders'].count_documents({"Sender": sender})
@@ -165,11 +165,18 @@ def index():
                     sh.session_status(sender,'1','1') 
                     message =  "*Your shopping cart*\n" 
                     i = 1
+                    
                     for product in dbh.db['shopping_cart'].find({"sender": sender}):
-                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + str(product['unit_price']) +"\nQuantity: " + str(product['quantity'])+ ""+"\nProduct Code: "+ product['product_code'] + "\nTotal Price"+ str(product['total_price']) +"\n\n"
                         i = i + 1
 
-                    message = message + "\n\nType Proceed to pay or EXIT to look for other products"
+                    # for product in dbh.db['shopping_cart'].find({"sender": sender}):
+                    #     message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                    #     i = i + 1
+
+                    recommendations = "\n*Other product recommendations comes here*"
+
+                    message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
                     api.reply_message(sender,message)
                     return '', 200
                 else:
@@ -235,7 +242,7 @@ def index():
                                 "product_code": product['product_code'],
                               "unit_price": product['price'],
                               "quantity": mycart[1],
-                              "total_price": product['price'] * mycart[1]
+                              "total_price": float(product['price']) * float(mycart[1])
                             }
                             dbh.db['shopping_cart'].insert_one(record)
 
@@ -359,7 +366,7 @@ def index():
                     price = 0
 
                     for product in dbh.db['shopping_cart'].find({"sender": sender}):
-                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + product['unit_price'] +"\nQuantity: " + product['quantity']+ ""+"\nProduct Code: "+ product['product_code'] + "Total Price"+ product['total_price'] +"\n\n"
+                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + str(product['unit_price']) +"\nQuantity: " + str(product['quantity'])+ ""+"\nProduct Code: "+ product['product_code'] + "Total Price"+ str(product['total_price']) +"\n\n"
                         i = i + 1
         
                     
@@ -403,7 +410,7 @@ def index():
                     paynow = Paynow(10724,'31008a64-6945-43d6-aed2-000961c04d5a','https://tauraikatsekera.herokuapp.com/chatbot/payments', 'https://tauraikatsekera.herokuapp.com/chatbot/payments')
                     payment = paynow.create_payment(details['reference_no'], details['email'])
     
-                    payment.add(details['Purpose'], details['amount'])
+                    payment.add(details['Purpose'], 2)
                     response = paynow.send_mobile(payment, details['pay_number'], details['Payment_method'])
 
 
