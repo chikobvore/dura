@@ -59,7 +59,7 @@ def index():
                 "body": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg'
             }
             
-            response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+            response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
             print('....replied: '+ sender + '...........')
             return str(response.status_code)
 
@@ -97,7 +97,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -112,7 +112,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "3":
@@ -126,7 +126,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -141,7 +141,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -156,7 +156,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post("https://api.chat-api.com/instance268730/sendFile?token=du0bwpcfom4gs5kf", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "0":
@@ -174,7 +174,11 @@ def index():
                     return '', 200
                 else:
                     #invalid response from user
-                    sh.session_status(sender,'0','0')  
+                    dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                    dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
+                    
+                    sh.session_status(sender,'0','0') 
+
                     message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Cancel"
                     api.reply_message(sender,message)
                     return '', 200
@@ -183,7 +187,7 @@ def index():
 
                 if state['Status'] == '0':
 
-                    product_existance = dbh.db['products'].count_documents({"product": response})
+                    product_existance = dbh.db['products'].count_documents({"product": response.lower()})
 
                     if product_existance > 0:
 
@@ -191,11 +195,11 @@ def index():
                         sh.session_status(sender,'1','1') 
                         message =  "*Groceries*\n\nRecommended for you\n" 
                         i = 1
-                        for product in dbh.db['products'].find({"product": response}).sort([("ratings", -1)]):
+                        for product in dbh.db['products'].find({"product": response.lower()}).sort([("ratings", -1)]):
                             message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code']  +"\nratings: "+ str(product['ratings']) + "⭐"+"\n\n"
                             i = i + 1
 
-                        message = message + "\n\nEnter product code to add to your cart or EXIT to look for other products"
+                        message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
                         api.reply_message(sender,message)
                         return '', 200
                     else:
@@ -217,19 +221,34 @@ def index():
                         api.reply_message(sender,message)
                         return '', 200
 
-                    else:                    
-                        product_existance = dbh.db['products'].count_documents({"product_code": response}) 
+                    else:
+
+                        mycart = response.split(',')                
+                        product_existance = dbh.db['products'].count_documents({"product_code": mycart[0]}) 
 
                         if product_existance > 0:
-                            product = dbh.db['products'].find_one({"product_code": response})
+                            product = dbh.db['products'].find_one({"product_code": mycart[0]})
 
                             record = {
                                 "sender": sender,
                                 "product": product['product'],
                                 "product_code": product['product_code'],
-                              "price": product['price'] 
+                              "unit_price": product['price'],
+                              "quantity": mycart[1],
+                              "total_price": product['price'] * mycart[1]
                             }
                             dbh.db['shopping_cart'].insert_one(record)
+
+                            if mycart[2]:
+
+                                record = {
+                                    "sender": sender,
+                                    "product": product['product'],
+                                    "product_code": product['product_code'],
+                                    "rating": mycart[2],
+                                }
+                                dbh.db['product_ratings'].insert_one(record)
+
                             sh.session_status(sender,'0','0') 
 
                             message =  "*"+ product['product'] + " successfully added to cart"+ "*"
@@ -340,7 +359,7 @@ def index():
                     price = 0
 
                     for product in dbh.db['shopping_cart'].find({"sender": sender}):
-                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + product['unit_price'] +"\nQuantity: " + product['quantity']+ ""+"\nProduct Code: "+ product['product_code'] + "Total Price"+ product['total_price'] +"\n\n"
                         i = i + 1
         
                     
@@ -358,8 +377,12 @@ def index():
                             "Date_paid": datetime.datetime.now()
                         })
 
-                    message2 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  response +  "\n\nPress 1 to continue or 0 to cancel"
-                    message = message + message2
+                    message2 ="\n\n*Other products recommended for you comes here*\n\n"
+
+                    products = pd.DataFrame(dbh.db['product_ratings'].find())
+
+                    message3 = "*Confirm Payment*\n\nPlease confirm details below\n\n*Phone No*: "+ details['pay_number'] + "\n*Email*: "+  details['email'] + "\n*Amount*: "+  response +  "\n\nPress 1 to continue or 0 to cancel"
+                    message = message + message2 + message3
                     api.reply_message(sender,message)
                     return '', 200
 
@@ -371,6 +394,9 @@ def index():
                         message = "Transaction cancelled 😔"
                         api.reply_message(sender,message)
                         return main.menu(sender)
+
+                    
+                    
 
                     details = dbh.db['pending_payments'].find_one({"Sender": sender})
                     #paynow = Paynow(9415,'3d7f4aed-ab06-42f5-b155-0e12e41fc714','https://tauraikatsekera.herokuapp.com/chatbot/payments', 'https://tauraikatsekera.herokuapp.com/chatbot/payments')
@@ -451,7 +477,7 @@ def groceries():
     groceries = []
     if request.method == 'POST':
         product = {
-                "product": request.form['product'],
+                "product": request.form['product'].lower(),
                 "type": 'groceries',
                 "price": request.form['price'],
                 "description": request.form['description'],
@@ -482,7 +508,7 @@ def households():
     groceries = []
     if request.method == 'POST':
         product = {
-                "product": request.form['product'],
+                "product": request.form['product'].lower(),
                 "type": 'households',
                 "price": request.form['price'],
                 "description": request.form['description'],
@@ -512,7 +538,7 @@ def bodyproducts():
     groceries = []
     if request.method == 'POST':
         product = {
-                "product": request.form['product'],
+                "product": request.form['product'].lower(),
                 "type": 'bodyproducts',
                 "price": request.form['price'],
                 "description": request.form['description'],
@@ -544,7 +570,7 @@ def packagedfoods():
     groceries = []
     if request.method == 'POST':
         product = {
-                "product": request.form['product'],
+                "product": request.form['product'].lower(),
                 "type": 'packagedfoods',
                 "price": request.form['price'],
                 "description": request.form['description'],
@@ -573,7 +599,7 @@ def beverages():
     groceries = []
     if request.method == 'POST':
         product = {
-                "product": request.form['product'],
+                "product": request.form['product'].lower(),
                 "type": 'beverages',
                 "price": request.form['price'],
                 "description": request.form['description'],
