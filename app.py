@@ -7,6 +7,9 @@ import sys,os,random
 from paynow import Paynow
 import pandas as pd
 
+from sklearn.neighbors import NearestNeighbors
+from sklearn.linear_model import LogisticRegression
+from sklearn import neighbors
 # client = messagebird.Client('QQRgKx3QvpSV6SpEVewDvWJGK', features=[messagebird.Feature.ENABLE_CONVERSATIONS_API_WHATSAPP_SANdbh.dbOX])
 # # Enable conversations API whatsapp sandbox# client = messagebird.Client('1ekjMs368KTRlP0z6zfG9P70z', #features = [messagebird.Feature.ENABLE_CONVERSATIONS_API_WHATSAPP_SANDBOX])
 
@@ -36,7 +39,35 @@ def index():
             dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
             dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
             sh.session_status(sender,'0','0') 
-            message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+            message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check Out \n\n*Exit* to terminate current session"
+            api.reply_message(sender,message)
+            return '', 200
+
+        if response == 'menu' or response == 'Menu' or response == 'MENU':
+
+            message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check Out \n\n*Exit* to terminate current session"
+            api.reply_message(sender,message)
+            return '', 200
+
+        if response == '0':
+            
+            products = []
+            sh.session_status(sender,'1','1')
+            message =  "*Your shopping cart*\n"
+
+            i = 1
+                    
+            for product in dbh.db['shopping_cart'].find({"sender": sender}):
+                message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + str(product['unit_price']) +"\nQuantity: " + str(product['quantity'])+ ""+"\nProduct Code: "+ product['product_code'] + "\nTotal Price"+ str(product['total_price']) +"\n\n"
+                i = i + 1
+
+            # for product in dbh.db['shopping_cart'].find({"sender": sender}):
+            #     message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+            #     i = i + 1
+
+            recommendations = "\n*Other product recommendations comes here*"
+
+            message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
             api.reply_message(sender,message)
             return '', 200
 
@@ -51,12 +82,12 @@ def index():
                 }
             dbh.db['Senders'].insert_one(record)
 
-            message = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting Dura Online services,I'm Tina, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263714502462 \n\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+            message = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting us,I'm Marvellous, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263784451537\n\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
             payload = {
                 "phone": sender,
-                "filename": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg',
+                "filename": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg',
                 "caption": message,
-                "body": 'https://chikobvore.github.io/dura_online_shop/images/111.jpg'
+                "body": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg'
             }
             
             response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
@@ -79,7 +110,7 @@ def index():
                 sh.session_status(sender,'0','0')
                 dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
                 dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
-                message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+                message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check out \n\*Exit* to terminate current session"
                 api.reply_message(sender,message)
                 return '', 200
 
@@ -102,7 +133,7 @@ def index():
                     return str(response.status_code)
 
                 elif response == "2":
-                    sh.session_status(sender,'1','0')           
+                    sh.session_status(sender,'2','0')           
 
                     message = "*Household Products*,\n Please type in the grocery products you are looking forward to"
                     payload = {
@@ -116,7 +147,7 @@ def index():
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "3":
-                    sh.session_status(sender,'1','0')           
+                    sh.session_status(sender,'3','0')           
 
                     message = "*Body care Products*,\n Please type in the grocery products you are looking forward to"
                     payload = {
@@ -131,7 +162,7 @@ def index():
                     return str(response.status_code)
 
                 elif response == "4":
-                    sh.session_status(sender,'1','0')           
+                    sh.session_status(sender,'4','0')           
 
                     message = "*Packaged foods*,\n Please type in the grocery products you are looking forward to"
                     payload = {
@@ -146,7 +177,7 @@ def index():
                     return str(response.status_code)
 
                 elif response == "5":
-                    sh.session_status(sender,'1','0')           
+                    sh.session_status(sender,'5','0')           
 
                     message = "*Beverages*,\n Please type in the grocery products you are looking forward to"
                     payload = {
@@ -186,7 +217,7 @@ def index():
                     
                     sh.session_status(sender,'0','0') 
 
-                    message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Cancel"
+                    message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check out\n*Exit* to terminate current session"
                     api.reply_message(sender,message)
                     return '', 200
 
@@ -194,29 +225,117 @@ def index():
 
                 if state['Status'] == '0':
 
-                    product_existance = dbh.db['products'].count_documents({"product": response.lower()})
+                    products = response.split(',')     
 
-                    if product_existance > 0:
+                    for item in products:
+                        product_existance = dbh.db['products'].count_documents({"product": item.lower()})
 
-                        products = []
-                        sh.session_status(sender,'1','1') 
-                        message =  "*Groceries*\n\nRecommended for you\n" 
-                        i = 1
-                        for product in dbh.db['products'].find({"product": response.lower()}).sort([("ratings", -1)]):
-                            message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code']  +"\nratings: "+ str(product['ratings']) + "⭐"+"\n\n"
-                            i = i + 1
+                        if product_existance > 0:
 
-                        message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
-                        api.reply_message(sender,message)
-                        return '', 200
-                    else:
-                        message =  "We sorry we dont have that product in stock at the moment"
-                        api.reply_message(sender,message)
-                        return '', 200
+                            products = []
+                            sh.session_status(sender,'1','1') 
+                            message =  "*Groceries*\n\nRecommended for you\n" 
+                            i = 1
+
+
+                            for product in dbh.db['products'].find({"product": item.lower()}).sort([("ratings", -1)]):
+                                message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code']  +"\nratings: "+ str(product['ratings']) + "⭐"+"\n\n"
+                                i = i + 1
+
+                            message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional 0-5))*"
+                            api.reply_message(sender,message)
+                            
+                        else:
+                            
+                            if state['session_type'] == "1":
+
+                                sh.session_status(sender,'1','1') 
+                                i = 1
+                                message =  "We sorry we dont have that product in stock at the moment\nOther products recommended for you\n\n"
+                                products = []
+
+
+                                for product in dbh.db['products'].find({"type": "groceries"}).sort([("ratings", -1)]).skip(2).limit(5):
+                                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                                    i = i + 1
+
+                                message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
+                                api.reply_message(sender,message)
+            
+
+                            if state['session_type'] == "2":
+
+                                sh.session_status(sender,'1','1') 
+                                i = 1
+                                message =  "We sorry we dont have that product in stock at the moment\nOther products recommended for you\n\n"
+                                products = []
+
+
+                                for product in dbh.db['products'].find({"type": "households"}).sort([("ratings", -1)]).skip(2).limit(5):
+                                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                                    i = i + 1
+
+                                message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
+                                api.reply_message(sender,message)
+                        
+
+                            if state['session_type'] == "3":
+
+                                sh.session_status(sender,'1','1') 
+                                i = 1
+                                message =  "We sorry we dont have that product in stock at the moment\nOther products recommended for you\n\n"
+                                products = []
+
+
+                                for product in dbh.db['products'].find({"type": "bodyproducts"}).sort([("ratings", -1)]).skip(2).limit(5):
+                                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                                    i = i + 1
+
+                                message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
+                                api.reply_message(sender,message)
+                              
+
+                            if state['session_type'] == "4":
+
+                                sh.session_status(sender,'1','1') 
+                                i = 1
+                                message =  "We sorry we dont have that product in stock at the moment\nOther products recommended for you\n\n"
+                                products = []
+
+
+                                for product in dbh.db['products'].find({"type": "packagedfoods"}).sort([("ratings", -1)]).skip(2).limit(5):
+                                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                                    i = i + 1
+
+                                message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional(0-5)))*"
+                                api.reply_message(sender,message)
+                
+
+                            if state['session_type'] == "5":
+
+                                sh.session_status(sender,'1','1') 
+                                i = 1
+                                message =  "We sorry we dont have that product in stock at the moment\nOther products recommended for you\n\n"
+                                products = []
+
+
+                                for product in dbh.db['products'].find({"type": "beverages"}).sort([("ratings", -1)]).skip(2).limit(5):
+                                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                                    i = i + 1
+
+                                message = message + "\n\nTo add product to your cart, please provide details as follows\n*(product code,quantity,product ratings (optional))*"
+                                api.reply_message(sender,message)
+       
+
+                    return '', 200
+
 
                 elif state['Status'] == '1':
                     if response == 'EXIT' or response == 'exit' or response == 'Exit':
-                        sh.session_status(sender,'0','0') 
+                        sh.session_status(sender,'0','0')
+                        dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
+                        dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
+
                         message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
                         api.reply_message(sender,message)
                         return '', 200
@@ -256,15 +375,17 @@ def index():
                                 }
                                 dbh.db['product_ratings'].insert_one(record)
 
-                            sh.session_status(sender,'0','0') 
+                    
+
+                            #sh.session_status(sender,'0','0') 
 
                             message =  "*"+ product['product'] + " successfully added to cart"+ "*"
-                            message = message + "\n\n*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check out"
+                            message = message + "\nTo add to your cart,please provide details as follows *(product code,quantity,product ratings(0-5))*\n\nEnter *menu* to return to main menu or 0 to check out"
                             api.reply_message(sender,message)
                             return '', 200
 
                         else:
-                            message =  "Sorry product code not found"
+                            message =  "*Sorry product code not found*\n\nTo add to your cart,please provide details as follows *(product code,quantity,product ratings(0-5))*"
                             api.reply_message(sender,message)
                             return '', 200
 
@@ -356,9 +477,7 @@ def index():
                 elif state['Status'] == '2':
                     
                     state = dbh.db['Senders'].find_one({"Sender": sender})
-                    sh.session_status(sender,session_type=state['session_type'],status='3')
-
-            
+                    sh.session_status(sender,session_type=state['session_type'],status='3') 
                     
                     products = []
                     message =  "*Confirm Payment*\n\n*Shopping Cart\n*" 
