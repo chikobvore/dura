@@ -64,8 +64,15 @@ def index():
             # for product in dbh.db['shopping_cart'].find({"sender": sender}):
             #     message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
             #     i = i + 1
+            
+            i = 1
+            recommendations ="\n*Other products recommended for you*\n"
+            for product in dbh.db['products'].find().sort([("ratings", -1)]).limit(5):
 
-            recommendations = "\n*Other product recommendations comes here*"
+                recommendations = recommendations +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                i = i + 1
+
+            #recommendations = "\n*Other product recommendations comes here*"
 
             message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
             api.reply_message(sender,message)
@@ -90,7 +97,7 @@ def index():
                 "body": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg'
             }
             
-            response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+            response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
             print('....replied: '+ sender + '...........')
             return str(response.status_code)
 
@@ -128,7 +135,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -143,7 +150,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "3":
@@ -157,7 +164,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -172,7 +179,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
 
@@ -187,7 +194,7 @@ def index():
                         "body": 'https://chikobvore.github.io/dura_online_shop/images/11.jpg'
                     }
             
-                    response = requests.post(" https://api.chat-api.com/instance289638/sendFile?token=dzm32w8u4tumnjhg", data=payload)
+                    response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
                     print('....replied: '+ sender + '...........')
                     return str(response.status_code)
                 elif response == "0":
@@ -204,8 +211,14 @@ def index():
                     # for product in dbh.db['shopping_cart'].find({"sender": sender}):
                     #     message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
                     #     i = i + 1
+                    
+                    i = 1
+                    recommendations ="\n*Other products recommended for you*\n"
+                    for product in dbh.db['products'].find().sort([("ratings", -1)]).skip(2).limit(5):
+                        recommendations = recommendations +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        i = i + 1
 
-                    recommendations = "\n*Other product recommendations comes here*"
+                    #recommendations = "\n*Other product recommendations comes here*"
 
                     message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
                     api.reply_message(sender,message)
@@ -375,7 +388,29 @@ def index():
                                 }
                                 dbh.db['product_ratings'].insert_one(record)
 
-                    
+                                total = 0
+                                i = 0
+
+                                for rating in  dbh.db['product_ratings'].find({'product_code': product['product_code']}):
+                                    total = total + float(rating['rating'])
+                                    i = i + 1
+
+                                average_rating = float(total/i)
+                                
+                                details = dbh.db['products'].find_one({"product_code": product['product_code']})
+                                dbh.db['products'].update({"product_code": product['product_code']},
+                                {
+                                    "product": details['product'],
+                                    "type":  details['type'],
+                                    "price":  details['price'],
+                                    "description":  details['description'],
+                                    "best_before":  details['best_before'],
+                                    "md":  details['md'],
+                                    "image_url":  details['image_url'],
+                                    "product_code":  details['product_code'],
+                                    "ratings": average_rating,
+                                    "frequency": i
+                                })
 
                             #sh.session_status(sender,'0','0') 
 
@@ -503,7 +538,13 @@ def index():
                             "Date_paid": datetime.datetime.now()
                         })
 
-                    message2 ="\n\n*Other products recommended for you comes here*\n\n"
+                    i = 1
+                    message2 ="\n\n"
+                    for product in dbh.db['products'].find().sort([("ratings", -1)]).limit(5):
+                        message2 = message2 +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                        i = i + 1
+
+                    #message2 ="\n\n*Other products recommended for you comes here*\n\n"
 
                     products = pd.DataFrame(dbh.db['product_ratings'].find())
 
