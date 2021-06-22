@@ -89,12 +89,12 @@ def index():
                 }
             dbh.db['Senders'].insert_one(record)
 
-            message = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting us,I'm Marvellous, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263784451537\n\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+            message = "Hello "+ senderName +" 🙋🏽‍♂ ,I'm Tina, im going to help you do some amazing shopping, \nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
             payload = {
                 "phone": sender,
-                "filename": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg',
+                "filename": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg',
                 "caption": message,
-                "body": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg'
+                "body": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg'
             }
             
             response = requests.post(" https://api.chat-api.com/instance291149/sendFile?token=2837i4q31ild1lzg", data=payload)
