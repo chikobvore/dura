@@ -37,9 +37,17 @@ def index():
         if response == 'EXIT' or response == 'exit' or response == 'Exit':
 
             dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
-            dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
+
+            dbh.db['shopping_cart'].deleteMany({'sender': sender})
             sh.session_status(sender,'0','0') 
             message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check Out \n\n*Exit* to terminate current session"
+            api.reply_message(sender,message)
+            return '', 200
+
+        if response == 'REMOVE' or response == 'Remove' or response == 'remove':
+
+            sh.session_status(sender,'7','0')
+            message =  "Please enter product code"
             api.reply_message(sender,message)
             return '', 200
 
@@ -56,10 +64,15 @@ def index():
             message =  "*Your shopping cart*\n"
 
             i = 1
+            total = 0
                     
             for product in dbh.db['shopping_cart'].find({"sender": sender}):
                 message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + str(product['unit_price']) +"\nQuantity: " + str(product['quantity'])+ ""+"\nProduct Code: "+ product['product_code'] + "\nTotal Price"+ str(product['total_price']) +"\n\n"
                 i = i + 1
+                total = total + product['total_price']
+
+
+            message = message + "\n\n*Total units:* "+ str(i) +"\n*nSub Total:* " + str(product['total_price']) + "\n*Discounts:* 0.00" + "\n*Total Price*: " +str(product['total_price'])
 
             # for product in dbh.db['shopping_cart'].find({"sender": sender}):
             #     message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
@@ -74,7 +87,7 @@ def index():
 
             #recommendations = "\n*Other product recommendations comes here*"
 
-            message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
+            message = message + recommendations + "\n\nType *Pay* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
             api.reply_message(sender,message)
             return '', 200
 
@@ -220,7 +233,7 @@ def index():
 
                     #recommendations = "\n*Other product recommendations comes here*"
 
-                    message = message + recommendations + "\n\nType Proceed to pay or EXIT to look for other products"
+                    message = message + recommendations + "\n\nType *Pay* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
                     api.reply_message(sender,message)
                     return '', 200
                 else:
@@ -539,7 +552,7 @@ def index():
                         })
 
                     i = 1
-                    message2 ="\n\n"
+                    message2 ="\n\n *Other products recommended for you comes here*"
                     for product in dbh.db['products'].find().sort([("ratings", -1)]).limit(5):
                         message2 = message2 +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
                         i = i + 1
@@ -636,7 +649,13 @@ def index():
                         message = "Transaction Failed"
                         api.reply_message(sender,message)
                         return main.feedback(sender)
-                
+            
+            elif state['7']:
+                dbh.db['shopping_cart'].find_one_and_delete({'sender': sender,'product_code': response})
+
+                message =  "*Product successfully removed*"
+                api.reply_message(sender,message)
+                return main.menu(sender)
 
 
 @app.route('/groceries',methods = ['GET','POST']) 
