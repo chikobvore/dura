@@ -88,7 +88,7 @@ def index():
 
             #recommendations = "\n*Other product recommendations comes here*"
 
-            message = message + recommendations + "\n\nType *Pay* to proceed to pay or Menu to look for other products or *REMOVE* to remove products from your cart"
+            message = message + recommendations + "\n\nType *Proceed* to proceed to pay or Menu to look for other products or *REMOVE* to remove products from your cart"
             api.reply_message(sender,message)
             return '', 200
 
@@ -235,7 +235,7 @@ def index():
 
                     #recommendations = "\n*Other product recommendations comes here*"
 
-                    message = message + recommendations + "\n\nType *Pay* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
+                    message = message + recommendations + "\n\nType *Proceed* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
                     api.reply_message(sender,message)
                     return '', 200
                 else:
