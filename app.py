@@ -52,6 +52,7 @@ def index():
             return '', 200
 
         if response == 'menu' or response == 'Menu' or response == 'MENU':
+            sh.session_status(sender,'0','0') 
 
             message =  "*Please select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check Out \n\n*Exit* to terminate current session"
             api.reply_message(sender,message)
@@ -87,7 +88,7 @@ def index():
 
             #recommendations = "\n*Other product recommendations comes here*"
 
-            message = message + recommendations + "\n\nType *Pay* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
+            message = message + recommendations + "\n\nType *Pay* to proceed to pay or Menu to look for other products or *REMOVE* to remove products from your cart"
             api.reply_message(sender,message)
             return '', 200
 
@@ -102,7 +103,7 @@ def index():
                 }
             dbh.db['Senders'].insert_one(record)
 
-            message = "Hello "+ senderName +" 🙋🏽‍♂ ,I'm Tina, im going to help you do some amazing shopping, \nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel"
+            message = "Hello "+ senderName +" 🙋🏽‍♂ ,I'm Tina, im going to help you do some amazing shopping, \nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel \n\n *You can always terminate your current session by entering EXIT or return to main menu by entering MENU*"
             payload = {
                 "phone": sender,
                 "filename": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg',
@@ -130,7 +131,8 @@ def index():
                 sh.session_status(sender,'0','0')
                 dbh.db['pending_payments'].find_one_and_delete({'Sender': sender})
                 dbh.db['shopping_cart'].find_one_and_delete({'sender': sender})
-                message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages\n*0*.Check out \n\*Exit* to terminate current session"
+                
+                message = "*Previous session expired*\nHello "+ senderName +" 🙋🏽‍♂ ,I'm Tina, im going to help you do some amazing shopping, \nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel \n\n *You can always terminate your current session by entering EXIT or return to main menu by entering MENU*"
                 api.reply_message(sender,message)
                 return '', 200
 
