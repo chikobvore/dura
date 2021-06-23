@@ -655,9 +655,25 @@ def index():
             elif state['session_type'] == "7":
                 dbh.db['shopping_cart'].find_one_and_delete({'sender': sender,'product_code': response})
 
-                message =  "*Product successfully removed*"
+                products = []
+                message =  response + " successfully removed\n\n"+"*Your shopping cart*\n" 
+                i = 1
+                    
+                for product in dbh.db['shopping_cart'].find({"sender": sender}):
+                    message = message +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nUnit Price: " + str(product['unit_price']) +"\nQuantity: " + str(product['quantity'])+ ""+"\nProduct Code: "+ product['product_code'] + "\nTotal Price"+ str(product['total_price']) +"\n\n"
+                    i = i + 1
+                    
+                i = 1
+                recommendations ="\n*Other products recommended for you*\n"
+                for product in dbh.db['products'].find().sort([("ratings", -1)]).skip(2).limit(5):
+                    recommendations = recommendations +"*"+ str(i) +"*" +"\nProduct: " + product['product'] + "\nPrice: " + product['price'] + "\nDescription: "+ product['description'] +  "\nProduct Code: "+ product['product_code'] +"\n\n"
+                    i = i + 1
+
+                #recommendations = "\n*Other product recommendations comes here*"
+
+                message = message + recommendations + "\n\nType *Proceed* to proceed to pay or EXIT to look for other products or *REMOVE* to remove products from your cart"
                 api.reply_message(sender,message)
-                return main.menu(sender)
+                return '', 200
 
 
 @app.route('/groceries',methods = ['GET','POST']) 
