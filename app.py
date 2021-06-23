@@ -653,7 +653,7 @@ def index():
                         return main.feedback(sender)
             
             elif state['session_type'] == "7":
-                sh.session_status(sender,'0','0') 
+                sh.session_status(sender,'1','1') 
                 dbh.db['shopping_cart'].find_one_and_delete({'sender': sender,'product_code': response})
 
                 products = []
