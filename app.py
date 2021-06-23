@@ -652,7 +652,7 @@ def index():
                         api.reply_message(sender,message)
                         return main.feedback(sender)
             
-            elif state['7']:
+            elif state['session_type'] == "7":
                 dbh.db['shopping_cart'].find_one_and_delete({'sender': sender,'product_code': response})
 
                 message =  "*Product successfully removed*"
