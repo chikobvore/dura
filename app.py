@@ -106,9 +106,9 @@ def index():
             message = "Hello "+ senderName +" 🙋🏽‍♂ ,I'm Tina, im going to help you do some amazing shopping, \nPlease select one of the following options to purchase 👇 \n*1*.Groceries\n*2*.Household appliances\n*3*.Body care products\n*4*.Packaged foods\n*5*.Beverages*0*.Cancel \n\n *You can always terminate your current session by entering EXIT or return to main menu by entering MENU*"
             payload = {
                 "phone": sender,
-                "filename": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg',
+                "filename": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg',
                 "caption": message,
-                "body": 'https://chikobvore.github.io/dura_online_shop/images/logo.jpeg'
+                "body": 'https://chikobvore.github.io/dura_online_shop/images/homepic.jpg'
             }
             
             response = requests.post("https://api.chat-api.com/instance293806/sendFile?token=033877aijo4aikvw", data=payload)
