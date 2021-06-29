@@ -528,6 +528,163 @@ def index():
             return '', 200
 
 
+@app.route('/groceries',methods = ['GET','POST']) 
+def groceries():
+    groceries = []
+    if request.method == 'POST':
+        product = {
+                "product": request.form['product'].lower(),
+                "type": 'groceries',
+                "price": request.form['price'],
+                "description": request.form['description'],
+                "best_before": request.form['bb'],
+                "md": request.form['md'],
+                "image_url": '',
+                "product_code": request.form['product_code'],
+                "ratings": 0,
+                "frequency": 0
+                }
+        dbh.db['products'].insert_one(product)
+
+        for product in dbh.db['products'].find({"type": "groceries"}):
+                groceries.append(product)
+
+        return render_template('groceries.html',groceries = groceries)
+    
+    else:
+        for product in dbh.db['products'].find({"type": "groceries"}):
+            groceries.append(product)
+
+        return render_template('groceries.html',groceries = groceries)
+
+
+        
+@app.route('/households',methods = ['GET','POST']) 
+def households():
+    groceries = []
+    if request.method == 'POST':
+        product = {
+                "product": request.form['product'].lower(),
+                "type": 'households',
+                "price": request.form['price'],
+                "description": request.form['description'],
+                "best_before": request.form['bb'],
+                "md": request.form['md'],
+                "image_url": '',
+                "product_code": request.form['product_code'],
+                "ratings": 0,
+                "frequency": 0
+                }
+        dbh.db['products'].insert_one(product)
+
+        for product in dbh.db['products'].find({"type": "households"}):
+                groceries.append(product)
+
+        return render_template('households.html',groceries = groceries)
+    
+    else:
+        for product in dbh.db['products'].find({"type": "households"}):
+            groceries.append(product)
+
+        return render_template('households.html',groceries = groceries)
+
+
+@app.route('/bodyproducts',methods = ['GET','POST']) 
+def bodyproducts():
+    groceries = []
+    if request.method == 'POST':
+        product = {
+                "product": request.form['product'].lower(),
+                "type": 'bodyproducts',
+                "price": request.form['price'],
+                "description": request.form['description'],
+                "best_before": request.form['bb'],
+                "md": request.form['md'],
+                "image_url": '',
+                "product_code": request.form['product_code'],
+                "ratings": 0,
+                "frequency": 0
+                }
+        dbh.db['products'].insert_one(product)
+
+        for product in dbh.db['products'].find({"type": "bodyproducts"}):
+                groceries.append(product)
+
+        return render_template('bodyproducts.html',groceries = groceries)
+    
+    else:
+        for product in dbh.db['products'].find({"type": "bodyproducts"}):
+            groceries.append(product)
+
+        return render_template('bodyproducts.html',groceries = groceries)
+
+
+
+
+@app.route('/packagedfoods',methods = ['GET','POST']) 
+def packagedfoods():
+    groceries = []
+    if request.method == 'POST':
+        product = {
+                "product": request.form['product'].lower(),
+                "type": 'packagedfoods',
+                "price": request.form['price'],
+                "description": request.form['description'],
+                "best_before": request.form['bb'],
+                "md": request.form['md'],
+                "image_url": '',
+                "product_code": request.form['product_code'],
+                "ratings": 0,
+                "frequency": 0
+                }
+        dbh.db['products'].insert_one(product)
+
+        for product in dbh.db['products'].find({"type": "packagedfoods"}):
+                groceries.append(product)
+
+        return render_template('packagedfoods.html',groceries = groceries)
+    
+    else:
+        for product in dbh.db['products'].find({"type": "packagedfoods"}):
+            groceries.append(product)
+
+        return render_template('packagedfoods.html',groceries = groceries)
+
+@app.route('/beverages',methods = ['GET','POST']) 
+def beverages():
+    groceries = []
+    if request.method == 'POST':
+        product = {
+                "product": request.form['product'].lower(),
+                "type": 'beverages',
+                "price": request.form['price'],
+                "description": request.form['description'],
+                "best_before": request.form['bb'],
+                "md": request.form['md'],
+                "image_url": '',
+                "product_code": request.form['product_code'],
+                "ratings": 0,
+                "frequency": 0
+                }
+        dbh.db['products'].insert_one(product)
+
+        for product in dbh.db['products'].find({"type": "beverages"}):
+                groceries.append(product)
+
+        return render_template('beverages.html',groceries = groceries)
+    
+    else:
+        for product in dbh.db['products'].find({"type": "beverages"}):
+            groceries.append(product)
+
+        return render_template('beverages.html',groceries = groceries)
+
+
+@app.route('/dashboard') 
+def dashboard():
+    return render_template('index.html')
+
+
 if __name__ == '__main__':
    app.secret_key = 'super secret key'
    app.config['SESSION_TYPE'] = 'filesystem'
